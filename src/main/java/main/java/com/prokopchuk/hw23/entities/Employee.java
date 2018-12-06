@@ -9,6 +9,9 @@ public class Employee extends Entity {
     private Gender gender;
     private Date hireDate;
 
+    public Employee() {
+    }
+
     public Employee(int id, Date birthday,
                     String firstName, String lastName,
                     Gender gender, Date hireDate) {
@@ -17,6 +20,13 @@ public class Employee extends Entity {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
+        this.hireDate = hireDate;
+    }
+
+    public Employee(int id, String firstName, String lastName, Date hireDate) {
+        super(id);
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.hireDate = hireDate;
     }
 

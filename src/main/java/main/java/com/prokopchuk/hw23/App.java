@@ -5,10 +5,13 @@ import main.java.com.prokopchuk.hw23.entities.Department;
 import main.java.com.prokopchuk.hw23.entities.Employee;
 import main.java.com.prokopchuk.hw23.entities.Gender;
 
-import javax.naming.NamingException;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class App {
 //    private static final String url = "jdbc:mysql://localhost:3306/employees"+
@@ -23,7 +26,8 @@ public class App {
 
     public static void main(String[] args) {
         //part1();
-        part2();
+        //part2();
+        part3();
     }
 
     private static void part1() {
@@ -55,8 +59,9 @@ public class App {
                 employee = new Employee(id, birthDate, firstName, lastName, gender, hireDate);
                 employees.add(employee);
             }
-            for (Employee employee1 : employees) {
-                System.out.println(employee1);
+            System.out.println("Found employees " + employees.size());
+            for (Employee employeePointer : employees) {
+                System.out.println(employeePointer);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -77,6 +82,7 @@ public class App {
              Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             EmployeeTitleBean employee;
+            //int counter = 0;
             while (rs.next()) {
                 int id = rs.getInt(1);
                 String firstName = rs.getString(2);
@@ -85,14 +91,58 @@ public class App {
                 String title = rs.getString(5);
                 int totalSalary = rs.getInt(6);
                 employee = new EmployeeTitleBean(id, firstName, lastName, title, totalSalary, hireDate);
+                //counter++;
+                System.out.println(employee);
                 employees.add(employee);
             }
-            System.out.println(employees.size() + " employees");
+            //System.out.println("Found " + counter + " employees");
+            System.out.println("Found " + employees.size() + " employees");
             for (EmployeeTitleBean employeePointer : employees) {
                 System.out.println(employeePointer);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void part3() {
+        Scanner scanner = new Scanner(System.in);
+        Pattern datePattern = Pattern.compile("(19|2[0-9])[0-9]{2}");
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
+        final String sql = "select employees.emp_no, first_name, last_name,\n" +
+                "hire_date from employees\n" +
+                "where hire_date = ?;";
+        System.out.println("Input the date hire employees, or 0 to exit");
+        int date = scanner.nextInt();
+        while (date != 0) {
+            if (date > 1900 && date <= 2018) {
+                //Date date = new Date(dateFormat.parse(stringDate).getTime());
+                List<Employee> employees = new ArrayList<>();
+                try (Connection connection = ConnectorDB.getConnection();
+                     PreparedStatement st = connection.prepareStatement(sql)) {
+                    st.setInt(1, date);
+                    ResultSet rs = st.executeQuery(sql);
+                    Employee employee;
+                    while (rs.next()) {
+                        int id = rs.getInt(1);
+                        String firstName = rs.getString(2);
+                        String lastName = rs.getString(3);
+                        Date hireDate = rs.getDate(4);
+                        employee = new Employee(id, firstName, lastName, hireDate);
+                        employees.add(employee);
+                    }
+                    System.out.println(employees.size() + " employees");
+                    for (Employee employeePointer : employees) {
+                        System.out.println(employeePointer);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Input the date hire employees, or exit");
+            }
+            System.out.println();
+            date = scanner.nextInt();
         }
     }
 }
