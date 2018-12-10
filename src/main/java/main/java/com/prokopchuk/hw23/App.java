@@ -27,7 +27,8 @@ public class App {
     public static void main(String[] args) {
         //part1();
         //part2();
-        part3();
+        //part3();
+        part4(1000000, 1000);
     }
 
     private static void part1() {
@@ -111,7 +112,7 @@ public class App {
         //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
         final String sql = "select employees.emp_no, first_name, last_name,\n" +
                 "hire_date from employees\n" +
-                "where hire_date = ?;";
+                "where year(hire_date) = ?;";
         System.out.println("Input the date hire employees, or 0 to exit");
         int date = scanner.nextInt();
         while (date != 0) {
@@ -121,7 +122,7 @@ public class App {
                 try (Connection connection = ConnectorDB.getConnection();
                      PreparedStatement st = connection.prepareStatement(sql)) {
                     st.setInt(1, date);
-                    ResultSet rs = st.executeQuery(sql);
+                    ResultSet rs = st.executeQuery();
                     Employee employee;
                     while (rs.next()) {
                         int id = rs.getInt(1);
@@ -135,6 +136,7 @@ public class App {
                     for (Employee employeePointer : employees) {
                         System.out.println(employeePointer);
                     }
+                    System.out.println(employees.size() + " employees found");
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -143,6 +145,43 @@ public class App {
             }
             System.out.println();
             date = scanner.nextInt();
+        }
+    }
+
+    private static void part4(int threshold, int increase) {
+        List<EmployeeTitleBean> employees = new ArrayList<>();
+        final String sqlSelect = "select employees.emp_no, first_name, last_name,\n" +
+                "(select title from titles \n" +
+                "where titles.to_date > now() and titles.emp_no = employees.emp_no) as current_title,\n" +
+                "(select salary from salaries \n" +
+                "where salaries.to_date > now() and salaries.emp_no = employees.emp_no) as current_salary,\n" +
+                "sum(salary) as total_salary from employees \n" +
+                "join titles on employees.emp_no = titles.emp_no\n" +
+                "join salaries on employees.emp_no = salaries.emp_no \n" +
+                "where titles.to_date > now()\n" +
+                "group by employees.emp_no having total_salary > ?;";
+        try (Connection connection = ConnectorDB.getConnection()) {
+            PreparedStatement st = connection.prepareStatement(sqlSelect);
+            st.setInt(1, threshold);
+            ResultSet rs = st.executeQuery();
+            EmployeeTitleBean employee;
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                String firstName = rs.getString(2);
+                String lastName = rs.getString(3);
+                String title = rs.getString(4);
+                int currentSalary = rs.getInt(5);
+                int totalSalary = rs.getInt(6);
+                employee = new EmployeeTitleBean(id, firstName, lastName, title, currentSalary, totalSalary);
+                employees.add(employee);
+            }
+            for (EmployeeTitleBean employeePointer : employees) {
+                System.out.println(employeePointer);
+            }
+            System.out.println("Found " + employees.size() + " employees");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
