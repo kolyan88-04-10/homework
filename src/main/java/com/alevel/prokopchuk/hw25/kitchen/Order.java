@@ -1,18 +1,17 @@
 package com.alevel.prokopchuk.hw25.kitchen;
 
-import com.alevel.prokopchuk.hw25.Tablet;
+import com.alevel.prokopchuk.hw25.models.Tablet;
 import com.alevel.prokopchuk.hw25.models.Dish;
 
 import java.util.List;
 
 public class Order {
-    private final Tablet tablet;
+    //private final Tablet tablet;
     private List<Dish> dishes;
 
-
-    public Order(Tablet tablet) {
+    /*public Order(Tablet tablet) {
         this.tablet = tablet;
-    }
+    }*/
 
     public List<Dish> getDishes() {
         return dishes;
@@ -24,9 +23,10 @@ public class Order {
 
     @Override
     public String toString() {
-        return "Your Order is {" +
-                "dishes=" + dishes +
-                " of tablet=" + tablet +
-                '}';
+        return dishes == null || dishes.isEmpty() ? ""
+                : "Your Order is {" +
+                "dishes=" + dishes
+                // " of tablet=" + tablet
+                + '}';
     }
 }
