@@ -22,7 +22,7 @@ public class OrderDao {
     public void save(Order order) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         Transaction tx1 = session.beginTransaction();
-        session.merge(order);
+        session.save(order);
         tx1.commit();
         session.close();
     }
