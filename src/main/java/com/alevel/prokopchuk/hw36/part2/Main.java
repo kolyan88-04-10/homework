@@ -15,7 +15,7 @@ public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println("Input low limit range");
         lowLimit = scanner.nextInt();
 
@@ -25,8 +25,17 @@ public class Main {
         System.out.println("Input threadCount");
         int threadCount = scanner.nextInt();
 
-        for (int i = 0; i < threadCount; i++) {
-            new Thread(new PrimeChecker()).start();
+        counter = lowLimit;
+
+        for (int i = 1; i <= threadCount; i++) {
+            new Thread(new PrimeChecker(i)).start();
+        }
+
+        Thread.currentThread().setDaemon(true);
+
+        while (true) {
+            Thread.currentThread().sleep(3000);
+            System.out.println("primeNumbers list size " + primeNumbers.size());
         }
 
     }
@@ -40,13 +49,24 @@ public class Main {
         return true;
     }
 
-    static class PrimeChecker implements Runnable{
+    static class PrimeChecker implements Runnable {
+
+        private int threadNumber;
+
+        public PrimeChecker(int threadNumber) {
+            this.threadNumber = threadNumber;
+        }
+
         @Override
         public void run() {
             while (counter <= highLimit) {
                 int numberToCheck = counter++;
+                System.out.println("Thread N" + threadNumber
+                        + "start check number" + numberToCheck);
                 if (primeNumberCheck(numberToCheck)) {
                     primeNumbers.add(numberToCheck);
+                    System.out.println("Thread N" + threadNumber
+                            + "add to primeNumbers " + numberToCheck);
                 }
             }
 
